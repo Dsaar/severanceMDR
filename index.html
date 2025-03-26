@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MDR Data Refinement</title>
+	<style>
+		body {
+			background-color: #020a13;
+			color: #00bcd4;
+			font-family: 'Courier New', Courier, monospace;
+			text-align: center;
+			margin: 0;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+
+		.top-bar {
+			width: 90%;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 10px;
+			border-bottom: 2px solid #00bcd4;
+		}
+
+		.progress-bar {
+			width: 85%;
+			height: 12px;
+			background: rgba(0, 188, 212, 0.2);
+			position: relative;
+		}
+
+		.progress {
+			width: 53%;
+			height: 100%;
+			background: #00bcd4;
+		}
+
+		.logo {
+			font-size: 20px;
+			font-weight: bold;
+			border: 1px solid #00bcd4;
+			padding: 5px 10px;
+		}
+
+		p{
+			display: flex;
+			font-size: 20px;
+		}
+
+		.screen {
+			width: 700px;
+			height: 500px;
+			display: grid;
+			grid-template-columns: repeat(10, 1fr);
+			grid-template-rows: repeat(6, 1fr);
+			gap: 8px;
+			align-items: center;
+			justify-content: center;
+			padding-top: 20px;
+		}
+
+		.data-cell {
+			font-size: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+		}
+
+		.data-cell:hover {
+			transform: scale(2.5);
+			color: #f0ead6;
+		}
+
+		.selected {
+			color: #ffcc00;
+			transform: scale(2.5);
+		}
+
+		.batch-container {
+			display: flex;
+			justify-content: space-between;
+			width: 80%;
+			padding-top: 20px;
+			border-top: 2px solid #00bcd4;
+		}
+
+		.batch-box {
+			width: 100px;
+			height: 50px;
+			text-align: center;
+			border: 1px solid #00bcd4;
+			padding: 5px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.batch-fill {
+			height: 10px;
+			background: #00bcd4;
+			width: 0%;
+			transition: width 0.5s;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+		}
+
+		.batch-animation {
+			position: absolute;
+			width: 30px;
+			height: 30px;
+			background: #00bcd4;
+			color: #000;
+			text-align: center;
+			line-height: 30px;
+			border-radius: 50%;
+			transition: top 0.7s ease-in-out, left 0.7s ease-in-out;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="top-bar">
+		<div class="progress-bar">
+			<div class="progress"></div>
+			<p>Cold Harbor</p>
+			
+		</div>
+		<br><br><br><br>
+		<div class="logo">LUMON</div>
+		
+	</div>
+	<div class="screen" id="grid"></div>
+	<div class="batch-container">
+		<div class="batch-box" id="box1">01<div class="batch-fill" id="batch1"></div>
+		</div>
+		<div class="batch-box" id="box2">02<div class="batch-fill" id="batch2"></div>
+		</div>
+		<div class="batch-box" id="box3">03<div class="batch-fill" id="batch3"></div>
+		</div>
+		<div class="batch-box" id="box4">04<div class="batch-fill" id="batch4"></div>
+		</div>
+	</div>
+	<script>
+		const grid = document.getElementById("grid");
+		const batchBars = [
+			document.getElementById("batch1"),
+			document.getElementById("batch2"),
+			document.getElementById("batch3"),
+			document.getElementById("batch4")
+		];
+		const batchBoxes = [
+			document.getElementById("box1"),
+			document.getElementById("box2"),
+			document.getElementById("box3"),
+			document.getElementById("box4")
+		];
+		const rows = 6;
+		const cols = 10;
+		let batchProgress = [0, 0, 0, 0];
+
+		function generateGrid() {
+			grid.innerHTML = "";
+			for (let r = 0; r < rows; r++) {
+				for (let c = 0; c < cols; c++) {
+					const num = Math.floor(Math.random() * 10);
+					const cell = document.createElement("div");
+					cell.classList.add("data-cell");
+					cell.textContent = num;
+					cell.dataset.row = r;
+					cell.dataset.col = c;
+					cell.onclick = () => selectNumber(cell, num);
+					grid.appendChild(cell);
+				}
+			}
+		}
+
+		function selectNumber(cell, num) {
+			cell.classList.add("selected");
+			const batchIndex = Math.floor(Math.random() * 4);
+			batchProgress[batchIndex] = Math.min(batchProgress[batchIndex] + 10, 100);
+			batchBars[batchIndex].style.width = batchProgress[batchIndex] + "%";
+			animateBatch(num, batchBoxes[batchIndex], cell);
+		}
+
+		function animateBatch(num, targetBox, cell) {
+			const anim = document.createElement("div");
+			anim.classList.add("batch-animation");
+			anim.textContent = num;
+			document.body.appendChild(anim);
+			const rect = targetBox.getBoundingClientRect();
+			const cellRect = cell.getBoundingClientRect();
+			anim.style.left = cellRect.left + "px";
+			anim.style.top = cellRect.top + "px";
+			setTimeout(() => {
+				anim.style.left = rect.left + rect.width / 2 + "px";
+				anim.style.top = rect.top + rect.height / 2 + "px";
+				setTimeout(() => anim.remove(), 700);
+			}, 10);
+		}
+
+		generateGrid();
+	</script>
+</body>
+
+</html>
